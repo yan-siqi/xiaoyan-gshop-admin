@@ -6,3 +6,4 @@ export {default as category} from './category'
 export {default as clientUser} from './clientUser'
 export {default as order} from './order'
 export {default as trademark} from './product/trademark'//新添加的
+export {default as attr} from './product/attr'//新添加的

@@ -20,8 +20,12 @@
       </el-table-column>
       <el-table-column prop="address" label="操作">
         <template slot-scope="{ row, $index }">
-          <el-button type="warning" icon="el-icon-edit" size="mini"
-           @click="showUpdate(row)" >修改</el-button
+          <el-button
+            type="warning"
+            icon="el-icon-edit"
+            size="mini"
+            @click="showUpdate(row)"
+            >修改</el-button
           >
           <el-button
             type="danger"
@@ -46,16 +50,24 @@
     >
     </el-pagination>
     <!-- 点击遮罩层,内部会自动执行$emit('update:visable',false) 表示自动关闭 -->
-    <el-dialog :title="form.id?'更新':'添加'" :visible.sync="isShowDialog">
-      <el-form :model="form" style="width:80%">
-        <el-form-item label="品牌名称" :label-width="formLabelWidth">
+    <el-dialog :title="form.id ? '更新' : '添加'" :visible.sync="isShowDialog">
+      <el-form :model="form" style="width:80%" :rules="rules" ref="tmForm">
+        <el-form-item
+          label="品牌名称"
+          :label-width="formLabelWidth"
+          prop="tmName"
+        >
           <el-input
             v-model="form.tmName"
             autocomplete="off"
             placeholder="请输入品牌名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="品牌logo" :label-width="formLabelWidth">
+        <el-form-item
+          label="品牌logo"
+          :label-width="formLabelWidth"
+          prop="logoUrl"
+        >
           <!-- 指定图片的借口地质 -->
           <!-- 指定上传图片的借口地质 ,组件内部发送上传文件的额ajax请求 -->
           <!-- 此时会发生跨域.使用代理服务器 -->
@@ -104,17 +116,35 @@ export default {
         logoUrl: ""
       },
       formLabelWidth: "120px",
-      imageUrl: ""
+      imageUrl: "",
+      rules: {
+        tmName: [
+          { required: true, message: "请输入品牌名称", trigger: "change" },
+          /*  { min: 3, max: 5, message: '长度在 2 到 10 个字符', trigger: 'blur' }, */
+          { validator: this.validateTmName, trigger: "blur" } //校验器
+        ],
+        logoUrl: [{ required: true, message: "请指定logo图片" }]
+      }
     };
   },
   mounted() {
     this.getTrademarks();
   },
   methods: {
+    //校验品牌名称的自定义函数
+    validateTmName(rule, value, callback) {
+      if (value.length < 2 || value.length > 10) {
+        //调用回调，传入error参数代表校验不通过
+        callback(new Error("长度2-10个字符"));
+      } else {
+        //不穿任何参数代表通过
+        callback();
+      }
+    },
     //上传图片成功
     handleLogoSuccess(res, file) {
       //图片地址数据
-      const logoUrl  = res.data;
+      const logoUrl = res.data;
       //保存图片地址信息
       this.form.logoUrl = logoUrl;
     },
@@ -156,6 +186,17 @@ export default {
       this.getTrademarks();
     },
     showAdd() {
+      /*
+      问题：当用户在添加的时候列表当中的信息也会变 ？
+      原因：列表项和form公用一个列表数据，一旦通过form跟新列表项，列表中的数据会自动变化==》实质就是：通过一个引用改变数据对象的问题
+      解决：使用解构
+      var obj1={m:1}
+      var obj2=obj1;
+      obj2.m=2
+      obj1.m=2
+
+      */
+
       /* this.isShowDialog = true; */
       this.form = {
         tmName: "",
@@ -164,34 +205,43 @@ export default {
       //显示dialog
       this.isShowDialog = true;
     },
+    /* 显示修改界面 */
+    showUpdate(trademark) {
+      this.form = { ...trademark }; //此时通过解构，此时内容相同，但指向的不是trademark对象==》对象的浅拷贝
+      this.isShowDialog = true;
+    },
     /* 添加或者修改品牌 ==>对应的是同一个界面*/
     async addOrUpdateTrademark() {
-      const trademark = this.form; //将需要的数据取出来
-      let result; //先声明,不然内部声明,外部不可用
-      if (trademark.id) {
-        //如果trademark中有id就发update请求,
-        result = await this.$API.trademark.update(trademark);
-      } else {
-        result = await this.$API.trademark.add(trademark);
-      }
-      if (result.code === 200) {
-        this.$message.success(`${trademark.id ? "更新" : "添加"}成功`);
-        this.isShowDialog = false;
-        this.getTrademarks(trademark.id ? this.page : 1); //如果是更新当前页显示,如果是添加是第一页显示
-        //清楚输入数据
-        this.form = {
-          tmName: "",
-          imageUrl: ""
-        };
-      } else {
-        this.$message.error(`${trademark.id ? "更新" : "添加"}失败`);
-      }
+      //先进行表单校验，如果校验不通过，不提交请求。报错
+      this.$refs.tmForm.validate(async (valid) => {
+        //当校验完自动通过
+        if (valid) {
+          const trademark = this.form; //将需要的数据取出来
+          let result; //先声明,不然内部声明,外部不可用
+          if (trademark.id) {
+            //如果trademark中有id就发update请求,
+            result = await this.$API.trademark.update(trademark);
+          } else {
+            result = await this.$API.trademark.add(trademark);
+          }
+          if (result.code === 200) {
+            this.$message.success(`${trademark.id ? "更新" : "添加"}成功`);
+            this.isShowDialog = false;
+            this.getTrademarks(trademark.id ? this.page : 1); //如果是更新当前页显示,如果是添加是第一页显示
+            //清楚输入数据
+            this.form = {
+              tmName: "",
+              imageUrl: ""
+            };
+          } else {
+            this.$message.error(`${trademark.id ? "更新" : "添加"}失败`);
+          }
+        } else {
+          //如果没通过
+        }
+      });
     },
-    /* 显示修改界面 */
-    showUpdate(trademark){
-    this.form=trademark
-    this.isShowDialog=true
-    },
+
     /* 删除操作message-box */
     /* 点击事件那块可能有问题 */
     deleteTrademark(trademark) {
@@ -199,7 +249,8 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(async () => {
+      })
+        .then(async () => {
           //发送删除品牌的请求
           //如果成功?
           const result = await this.$API.trademark.remove(trademark.id);
@@ -213,7 +264,6 @@ export default {
           } else {
             this.$message.error("删除品牌失败");
           }
-
         })
         .catch(() => {
           this.$message({
