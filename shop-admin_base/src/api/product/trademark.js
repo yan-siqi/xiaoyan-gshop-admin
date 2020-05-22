@@ -5,16 +5,15 @@ import request from "@/utils/request"; //ajax
 const api_name = "/admin/product/baseTrademark/";
 
 export default {
-  /*
- 根据id获取对应的品牌
-  */
+
+ //根据id获取对应的品牌
   getById(id) {
     return request({
       url: `${api_name}/get/${id}`,
       method: "GET"
     });
   },
-  //GET /admin/product/baseTrademark/getTrademarkList//获取所有列表
+  //GET /admin/product/baseTrademark/getTrademarkList//获取品牌属性所有列表
   getList(page,limit) {
     if (page && limit) {//如果参数传了page和limit就返回分页列表
       return request(`/admin/product/baseTrademark/${page}/${limit}`); //GET /admin/product/baseTrademark/{page}/{limit}  分页列表

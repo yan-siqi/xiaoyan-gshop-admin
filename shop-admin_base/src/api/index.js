@@ -7,3 +7,5 @@ export {default as clientUser} from './clientUser'
 export {default as order} from './order'
 export {default as trademark} from './product/trademark'//新添加的
 export {default as attr} from './product/attr'//新添加的
+export {default as spu} from './product/spu'//新添加的
+export {default as sku} from './product/sku'//新添加的

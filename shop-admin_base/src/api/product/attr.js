@@ -20,6 +20,6 @@ export default {
   addOrUpdate(attrInfo){
     //也包含两个属性添加或者是更新（传id）
     //POST /admin/product/saveAttrInfo
-    return request.post(' /admin/product/saveAttrInfo',attrInfo)
+    return request.post('/admin/product/saveAttrInfo',attrInfo)
   }
 };

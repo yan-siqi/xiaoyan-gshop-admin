@@ -1,11 +1,15 @@
 <template>
   <div>
-    sku管理
+    skuForm
   </div>
 </template>
 
 <script>
 export default {
-  name: "SkuList",
-};
+  name: 'SkuForm',
+}
 </script>
+
+<style lang="less" scoped>
+
+</style>

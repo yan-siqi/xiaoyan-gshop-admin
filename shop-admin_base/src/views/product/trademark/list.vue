@@ -7,13 +7,13 @@
       style="margin-bottom:20px"
       >添加</el-button
     >
-    <!-- 优化,添加圈圈 -->
+    <!-- 优化,当用户刷新浏览器，加载数据时显示 -->
     <el-table :data="trademarks" stripe border v-loading="loading">
-      <el-table-column label="序号" type="index" width="80" align="center">
-      </el-table-column>
+      <el-table-column label="序号" type="index" width="80" align="center"></el-table-column>
       <!-- prop是读date所有属性的值 -->
-      <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
+      <el-table-column prop="tmName" label="品牌名称"></el-table-column>
       <el-table-column label="品牌图片">
+        <!-- row代表品牌图片的所有数据 -->
         <template slot-scope="{ row }">
           <img :src="row.logoUrl" alt="" style="width:100px;height:60px" />
         </template>
@@ -37,6 +37,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 如果当前页面发生改变会重新获取数据 -->
     <el-pagination
       background
       style="text-align:center;margin-top:20px"
@@ -174,7 +175,7 @@ export default {
         const { records, total } = result.data;
         this.trademarks = records;
         this.total = total;
-      } else {
+      } else {//接收数据列表失败
         this.$message.error("获取列表失败");
       }
       //失败提示

@@ -2,6 +2,7 @@
   <el-form :inline="true" :model="cForm" class="demo-form-inline">
     <el-form-item label="一级分类">
       <el-select
+       :disabled="disabled"
         v-model="cForm.category1Id"
         placeholder="选择一级分类"
         @change="handleChange1"
@@ -16,6 +17,7 @@
     </el-form-item>
     <el-form-item label="二级分类">
       <el-select
+      :disabled="disabled"
         v-model="cForm.category2Id"
         placeholder="选择二级分类"
         @change="handleChange2"
@@ -29,7 +31,7 @@
       </el-select>
     </el-form-item>
     <el-form-item label="三级分类">
-      <el-select v-model="cForm.category3Id" placeholder="选择三级级分类"  @change="handleChange3">
+      <el-select :disabled="disabled" v-model="cForm.category3Id" placeholder="选择三级级分类"  @change="handleChange3">
         <el-option
           :label="c.name"
           :value="c.id"
@@ -55,7 +57,8 @@ export default {
       },
       category1List: [], //一级分类列表数据
       category2List: [], //二级分类列表数据
-      category3List: []
+      category3List: [],
+      disabled:false
     };
   },
   mounted() {
