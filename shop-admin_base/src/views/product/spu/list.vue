@@ -4,11 +4,12 @@
       <CategorySelector @categoryChange="handleCategoryChange" />
     </el-card>
     <el-card>
-      <div v-show="isShowSpuForm && !isShowSkuForm">
+      <div v-show="!isShowSpuForm && !isShowSkuForm">
         <el-button
           type="primary"
           icon="el-icon-plus"
           style="margin-bottom: 20px"
+          @click="showAddSpu"
           >添加SPU</el-button
         >
         <el-table :data="spuList" stripe border v-loading="loading">
@@ -24,33 +25,33 @@
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="{ row, $index }">
-              <el-button
+              <hint-button
                 title="添加SKU"
                 type="primary"
                 icon="el-icon-plus"
                 size="mini"
                 @click="showSkuAdd"
-              ></el-button>
-              <el-button
+              ></hint-button>
+              <hint-button
                 title="修改SPU"
                 type="warning"
                 icon="el-icon-edit"
                 size="mini"
                 @click="showUpdateSpu(row.id)"
-              ></el-button>
-              <el-button
+              ></hint-button>
+              <hint-button
                 title="删除SPU"
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
-              ></el-button>
-              <el-button
+              ></hint-button>
+              <hint-button
                 title="查询SKU"
                 type="info"
                 icon="el-icon-info"
                 size="mini"
-                @click="showUpdate(row.id)"
-              ></el-button>
+
+              ></hint-button>
             </template>
           </el-table-column>
         </el-table>
@@ -87,7 +88,7 @@ export default {
       page: 1,
       limit: 3,
       total: 0,
-      isShowSpuForm: true, //是否显示spuForm界面
+      isShowSpuForm: false, //是否显示spuForm界面
       isShowSkuForm: false
     };
   },
@@ -136,6 +137,11 @@ export default {
     },
     showSkuAdd() {
       this.isShowSkuForm = true;
+    },
+    showAddSpu(){
+      this.isShowSpuForm = true;
+      //spu通知添加界面的数据显示
+      this.$refs.spuForm.initLoadAddData()
     }
   },
   components: {

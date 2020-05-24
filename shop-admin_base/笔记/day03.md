@@ -30,4 +30,18 @@
 - 2. 根据SPU的id获取SPU的图片列表:`this.getSpuImageList()`
 - 3. 获取所有品牌的列表:` this.getTrademarkList()`
 - 4. 获取所有销售属性(id/name)列表:`this.getSaleAttrList()`
-  
+
+## 添加数据
+
+- 显示数据
+- 根据数据结构,显示相应 的数据
+- 品牌列表:trademarkList
+  - 数据:tmId(品牌id)/所有品牌列表
+- 图片列表 :spuImgList
+  - 现有的数据结构
+  - 要求的数据结构
+  - 必须要有name和url的数据
+- spu销售属性列表
+  - 现有的数据:spuSaleAttrList
+    - 结构:数组结构-->对象结构-->包含spuSalValueName的数组-->嵌套对象:属性值名称及shuju
+    - 显示:  
