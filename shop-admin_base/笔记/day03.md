@@ -44,4 +44,6 @@
 - spu销售属性列表
   - 现有的数据:spuSaleAttrList
     - 结构:数组结构-->对象结构-->包含spuSalValueName的数组-->嵌套对象:属性值名称及shuju
-    - 显示:  
+    - 显示: 
+
+## 创建的新分支
