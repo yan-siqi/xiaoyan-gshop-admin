@@ -30,7 +30,7 @@
                 type="primary"
                 icon="el-icon-plus"
                 size="mini"
-                @click="showSkuAdd"
+                @click="showSkuAdd(row)"
               ></hint-button>
               <hint-button
                 title="修改SPU"
@@ -50,7 +50,7 @@
                 type="info"
                 icon="el-icon-info"
                 size="mini"
-
+                @click="showSkuList(row)"
               ></hint-button>
             </template>
           </el-table-column>
@@ -67,15 +67,33 @@
           @size-change="handleSizeChange"
         />
       </div>
-      <SpuForm ref="spuForm" :visible.sync="isShowSpuForm"></SpuForm>
-      <SkuForm v-show="isShowSkuForm"></SkuForm>
+      <SpuForm
+        ref="spuForm"
+        :visible.sync="isShowSpuForm"
+        @saveSuccess="handleSaveSuccess"
+        @cancel="handleCancel"
+      ></SpuForm>
+      <SkuForm ref="skuForm" v-show="isShowSkuForm" @cancel="isShowSkuForm=false"></SkuForm>
+      <!-- 取消的回调函数 -->
     </el-card>
+        <el-dialog title="收货地址" :visible.sync="isShowSkuList">
+      <el-table :data="skuList" border>
+        <el-table-column property="skuName" label="名称"></el-table-column>
+        <el-table-column property="price" label="价格(元)"></el-table-column>
+        <el-table-column property="weight" label="重量(KG)"></el-table-column>
+        <el-table-column label="默认图片">
+          <template slot-scope="{row}">
+            <img :src="row.skuDefaultImg" alt="" style="width: 100px;height:100px">
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import SpuForm from "../components/spuForm";
-import SkuForm from "../components/skuForm";
+import SpuForm from "../components/SpuForm";
+import SkuForm from "../components/SkuForm";
 export default {
   name: "SpuList",
   data() {
@@ -89,14 +107,38 @@ export default {
       limit: 3,
       total: 0,
       isShowSpuForm: false, //是否显示spuForm界面
-      isShowSkuForm: false
+      isShowSkuForm: false,
+      isShowSkuList: false,
+      spu: {},
+      skuList: []
     };
   },
   mounted() {
-    this.category3Id=61
-    this.getSpuList();
+  /*  this.category1Id = 2
+    this.category2Id = 13
+    this.category3Id = 61
+    this.getSpuList(); */
   },
   methods: {
+    //异步显示spu下的所有sku列表
+    async showSkuList(spu) {
+      this.isShowSkuList = true;
+      this.spu = spu;
+      const result = await this.$API.sku.getListBySpuId(spu.id);
+      this.skuList = result.data;
+    },
+    handleSaveSuccess() {
+      //添加显示第一页
+      //更新显示当前页
+      //重新获取分页列表
+      this.getSpuList(this.spuId ? this.page : 1);
+      //跟新标致重置'
+      this.spuId = null;
+    },
+    handleCancel() {
+      //跟新标致重置'
+      this.spuId = null;
+    },
     handleCategoryChange({ categoryId, level }) {
       if (level === 1) {
         this.category1Id = categoryId;
@@ -132,16 +174,25 @@ export default {
     },
     //显示spu的修改界面
     showUpdateSpu(id) {
+      this.spuId = id;
       this.isShowSpuForm = true; //显示spuForm修改界面
       this.$refs.spuForm.initLoadUpdateData(id);
     },
-    showSkuAdd() {
+    showSkuAdd(spu) {
       this.isShowSkuForm = true;
+      //对spu进行浅拷贝
+      spu = { ...spu };
+      spu.category1Id = this.category1Id;
+      spu.category2Id = this.category2Id;
+      //让skuForm去请求加载初始显示的数据
+      console.log(this.$refs.skuForm);
+
+      this.$refs.skuForm.initLoadAddData(spu);
     },
-    showAddSpu(){
+    showAddSpu() {
       this.isShowSpuForm = true;
       //spu通知添加界面的数据显示
-      this.$refs.spuForm.initLoadAddData()
+      this.$refs.spuForm.initLoadAddData(this.category3Id);
     }
   },
   components: {

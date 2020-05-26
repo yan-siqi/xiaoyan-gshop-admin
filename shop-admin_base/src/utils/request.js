@@ -36,8 +36,10 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
-
-      return Promise.reject(new Error(result.message || '未知错误'))
+     if(result.code===201){
+       return new Promise(()=>{})//返回一个pending状态的promise
+     }
+      return Promise.reject(new Error(result.data||result.message || '未知错误'))
     } else {
       return result
     }

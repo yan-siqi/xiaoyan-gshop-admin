@@ -145,7 +145,8 @@ export default {
   name: "SpuForm",
   data() {
     return {
-      spuId:'',
+      category3Id: 61,
+      spuId: "",
       dialogImageUrl: "", //要显示大图的url
       dialogVisible: false, //是否显示大图的dialog
       spuInfo: {
@@ -188,7 +189,7 @@ export default {
     },
     handleSuccess(response, file, fileList) {
       //文件上传成功的回调函数(响应体数据对象,新上传的图片对象,所有的对象数组)
-      this.spuImageList = fileList // 将上传的图片保存下来;
+      this.spuImageList = fileList; // 将上传的图片保存下来;
     },
     handleInputConfirm(spuSaleAttr) {
       //确定添加一个新的SPU销售属性值对象:
@@ -216,8 +217,26 @@ export default {
         baseSaleAttrId
       });
       //查看模式
-      spuSaleAttr.edit = true;
+      spuSaleAttr.edit = false;
       spuSaleAttr.saleAttrValueName = "";
+    },
+    //重置当前数据
+    resetData() {
+      this.dialogImageUrl = "";
+      this.dialogVisible = false;
+      this.spuId = "";
+      (this.spuInfo = {
+        category3Id: "",
+        spuName: "",
+        description: "",
+        tmId: "",
+        spuImageList: [],
+        spuSaleAttrList: []
+      }),
+        (this.spuImageList = []),
+        (this.trademarkList = []),
+        (this.saleAttrList = []),
+        (this.attrIdAttrName = "");
     },
     async save() {
       //保存输入值
@@ -240,13 +259,22 @@ export default {
       const result = await this.$API.spu.addUpdate(spuInfo);
       if (result.code === 200) {
         this.$message.success("SPU数据保存陈功");
+        //重置当前组件数据
+        this.resetData();
+        //回到列表页面
+        this.$emit("update:visible", false);
+        //通知父组件重新获取数据显示
+        this.$emit("saveSuccess");
       } else {
         this.$message.error("抱歉SPU数据保存失败了");
       }
     },
+
     back() {
+      this.resetData(); //数据重置
       //分发自定义事件,使当前dialog关闭
       this.$emit("update:visible", false); //分发自定义事件使当前dialog关闭
+      this.$emit("cancel");
     },
     //在当前行显示输入框
     showInput(spuSaleAttr) {
@@ -261,15 +289,15 @@ export default {
     addSpuSaleAttr() {
       //添加新的销售属性对象
       //收集数据
-      const[baseSaleAttrId,saleAttrName]=this.attrIdAttrName.split(':');
+      const [baseSaleAttrId, saleAttrName] = this.attrIdAttrName.split(":");
       //添加新的spu属性对象
       this.spuInfo.spuSaleAttrList.push({
         baseSaleAttrId,
         saleAttrName,
-        spuSaleAttrValueList:[]
-      })
+        spuSaleAttrValueList: []
+      });
       //删除收集属性 的id和name
-      this.attrIdAttrName=''
+      this.attrIdAttrName = "";
     },
     //由父组件调用方法,根据id请求加载数据
     initLoadUpdateData(spuId) {
@@ -284,7 +312,8 @@ export default {
       this.getSaleAttrList();
     },
     //由父组件调用方法,根据id请求加载数据
-    initLoadAddData() {
+    initLoadAddData(category3Id) {
+      this.spuInfo.category3Id = category3Id;
       //3.获取所有的品牌列表
       this.getTrademarkList();
       //4.获取所有的销售属性列表
